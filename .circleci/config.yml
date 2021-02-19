@@ -39,7 +39,7 @@ jobs:
           name: Run tests
           command: |
             ./cc-test-reporter before-build
-            yarn run test
+            yarn run test:CI
             ./cc-test-reporter after-build --exit-code $?
   heroku-deploy-staging:
     <<: *defaults
