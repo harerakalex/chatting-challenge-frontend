@@ -1,1 +1,3 @@
-# chatti-frontend
+# Chatti-frontend
+
+Real chat application
