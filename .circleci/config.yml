@@ -1,0 +1,74 @@
+defaults: &defaults
+  environment:
+    CC_TEST_REPORTER_ID: 684522f8364642152c0b6343f0acc0dc0ffacaf825ce3afae8b9c4f9ae9adba9
+  docker:
+    - image: circleci/node:12.13.0
+      environment:
+        NODE_ENV: test
+
+version: 2
+orbs:
+  heroku: circleci/heroku@0.0.10.
+
+jobs:
+  checkout_code:
+    <<: *defaults
+    steps:
+      - checkout
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ .Branch }}-{{ checksum "package.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+      - run:
+          name: Install dependencies
+          command: yarn install
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ .Branch }}-{{ checksum "package.json" }}
+      # Download code climate reporter.
+      - run:
+          name: Install Code Climate Test Reporter
+          command: |
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+            chmod +x ./cc-test-reporter
+      - run:
+          name: Run tests
+          command: |
+            ./cc-test-reporter before-build
+            yarn run test
+            ./cc-test-reporter after-build --exit-code $?
+  heroku-deploy-staging:
+    <<: *defaults
+    environment:
+      HEROKU_APP: 'chatti-frontend'
+    steps:
+      - checkout
+      - run:
+          name: Setup Heroku
+          command: bash .circleci/setup-heroku.sh # run a script to set up Heroku
+
+      - run:
+          command: |
+            git push heroku develop:master
+            sleep 5 # sleep for 5 seconds to wait for dynos
+            heroku restart
+workflows:
+  version: 2
+  check_build_deploy:
+    jobs:
+      - approve_deployment:
+          type: approval
+      - checkout_code:
+          requires:
+            - approve_deployment
+      - heroku-deploy-staging:
+          requires:
+            - approve_deployment
+            - checkout_code
+          filters:
+            branches:
+              only: develop
