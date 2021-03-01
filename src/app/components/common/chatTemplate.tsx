@@ -6,10 +6,11 @@ import { io } from 'socket.io-client';
 import { sendMessage } from '../chats/chatsActions';
 import { AppState } from '../../redux';
 import { ISendMessage } from '../../redux/interfaces';
+import * as _ from 'lodash';
 
 const { REACT_APP_BACKEND_URL } = process.env;
 
-function ChatTemplate({ data, currentUser, receiverId }: any) {
+function ChatTemplate({ data, currentUser, receiverId, user }: any) {
   const [attr, setAttr] = useState<any>({
     showChatbox: true,
     showIcon: true,
@@ -33,10 +34,9 @@ function ChatTemplate({ data, currentUser, receiverId }: any) {
           ...attr,
           messages: attr.messages.concat({
             author: {
-              username: currentUser.username,
-              id: currentUser.id,
-              avatarUrl:
-                'https://image.flaticon.com/icons/svg/2446/2446032.svg',
+              username: getSender(message.senderid),
+              id: message.senderid,
+              avatarUrl: null,
             },
             text: message.message,
             type: 'text',
@@ -45,6 +45,7 @@ function ChatTemplate({ data, currentUser, receiverId }: any) {
         });
       }
     });
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [newMessage]);
 
@@ -56,6 +57,11 @@ function ChatTemplate({ data, currentUser, receiverId }: any) {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
+
+  const getSender = (id: number) => {
+    const sender = _.find(user, { id });
+    return sender.username;
+  };
 
   const handleClickIcon = () => {
     // toggle showChatbox and showIcon
@@ -71,7 +77,7 @@ function ChatTemplate({ data, currentUser, receiverId }: any) {
       ...attr,
       messages: attr.messages.concat({
         author: {
-          username: currentUser.username,
+          username: 'You',
           id: currentUser.id,
           avatarUrl: 'https://image.flaticon.com/icons/svg/2446/2446032.svg',
         },

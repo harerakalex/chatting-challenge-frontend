@@ -42,7 +42,6 @@ export const sendMessage = (receiverId: number, message: string) => async (
 ) => {
   try {
     const send = await postRequest('/message', { receiverId, message });
-    console.log(send);
     const { data } = send;
     dispatch(sendMsgSuccess(data));
   } catch (error) {
