@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import ChatBox, { ChatFrame } from 'react-chat-plugin';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { io } from 'socket.io-client';
 
 import { sendMessage } from '../chats/chatsActions';
+import { AppState } from '../../redux';
+import { ISendMessage } from '../../redux/interfaces';
 
 const { REACT_APP_BACKEND_URL } = process.env;
 
@@ -13,12 +15,38 @@ function ChatTemplate({ data, currentUser, receiverId }: any) {
     showIcon: true,
     messages: [],
   });
+  const { newMessage }: ISendMessage = useSelector(
+    (state: AppState) => state.sentMessage,
+  );
   const dispatch = useDispatch();
 
-  const socket = io(REACT_APP_BACKEND_URL as string);
-  socket.on('connect', () => {
-    console.log('Connected to Socket.IO server');
-  });
+  useEffect(() => {
+    const socket = io(REACT_APP_BACKEND_URL as string);
+    socket.on('connect', () => {
+      console.log('Connected to Socket.IO server');
+    });
+
+    socket.on('newMessage', ({ message }: any) => {
+      if (message.receiverid === currentUser.id) {
+        console.log(`MESSAGE: ${message.message}`);
+        setAttr({
+          ...attr,
+          messages: attr.messages.concat({
+            author: {
+              username: currentUser.username,
+              id: currentUser.id,
+              avatarUrl:
+                'https://image.flaticon.com/icons/svg/2446/2446032.svg',
+            },
+            text: message.message,
+            type: 'text',
+            timestamp: +new Date(),
+          }),
+        });
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [newMessage]);
 
   useEffect(() => {
     setAttr({
@@ -39,20 +67,6 @@ function ChatTemplate({ data, currentUser, receiverId }: any) {
   };
 
   const handleOnSendMessage = (message: string) => {
-    // setAttr({
-    //   ...attr,
-    //   messages: attr.messages.concat({
-    //     author: {
-    //       username: 'user1',
-    //       id: 1,
-    //       avatarUrl: 'https://image.flaticon.com/icons/svg/2446/2446032.svg',
-    //     },
-    //     text: message,
-    //     type: 'text',
-    //     timestamp: +new Date(),
-    //   }),
-    // });
-
     setAttr({
       ...attr,
       messages: attr.messages.concat({

@@ -2,7 +2,6 @@ import jwt from 'jwt-decode';
 import { toast } from 'react-toastify';
 
 import { postRequest } from '../../redux/api';
-// import { Axios } from '../../utils/index';
 import * as userActionTypes from './types';
 import { IUser } from '../../redux/interfaces';
 
@@ -24,7 +23,6 @@ export const login = (username: string, password: string) => async (
   };
   try {
     const send = await postRequest('/login', loginData);
-    console.log(send);
     const { data } = send;
     const { token } = data;
     const user = jwt(token) as IUser;

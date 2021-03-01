@@ -26,7 +26,6 @@ export const sendMsgError = (error: any) => ({
 export const getUserMessages = () => async (dispatch: any) => {
   try {
     const send = await getRequest('/message');
-    console.log(send);
     const { data } = send;
     dispatch(getOnSuccess(data));
   } catch (error) {

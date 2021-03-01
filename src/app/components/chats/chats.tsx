@@ -38,26 +38,6 @@ const Chats = () => {
     }
   }, [messages]);
 
-  // check for created msg
-  // useEffect(() => {
-  //   if (newMessage) {
-  //     const { message, created_at } = newMessage;
-  //     console.log('message', newMessage);
-  //     const addMsg = data.concat({
-  //       author: {
-  //         username: user.username,
-  //         id: user.id,
-  //         avatarUrl: 'https://image.flaticon.com/icons/svg/2446/2446032.svg',
-  //       },
-  //       text: message,
-  //       type: 'text',
-  //       timestamp: Date.parse(created_at as string),
-  //     });
-  //     setData(addMsg);
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [newMessage]);
-
   const updateActiveMenu = (menu: string) => {
     setActiveChat(menu);
     formatChat(menu);
@@ -106,7 +86,6 @@ const Chats = () => {
       ['desc'],
     );
 
-    console.log('last msg', sortedArray);
     setData(sortedArray);
   };
 

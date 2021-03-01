@@ -5,7 +5,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import './App.scss';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 
-import { Homepage, Login, Chats } from './components';
+import { Homepage, Login, Chats, Signup } from './components';
 import ProtectedRoutes from './components/common/protetedRoute';
 
 toast.configure();
@@ -17,6 +17,7 @@ const App = () => {
         <Switch>
           <Route exact path="/" component={Homepage} />
           <Route path="/login" component={Login} />
+          <Route path="/signup" component={Signup} />
           <ProtectedRoutes path="/chats" component={Chats} />
         </Switch>
       </BrowserRouter>

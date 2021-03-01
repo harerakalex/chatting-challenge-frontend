@@ -1,27 +1,42 @@
 import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 
-import './login.scss';
+import './signup.scss';
 import { AppState } from '../../redux';
 import { ILogin } from '../../redux/interfaces';
-import { login } from './loginAction';
+import { toast } from 'react-toastify';
+import { postRequest } from '../../redux/api';
 
-const LoginPage = () => {
+const SignupPage = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const { isAuthenticated }: ILogin = useSelector(
     (state: AppState) => state.login,
   );
-  const dispatch = useDispatch();
 
   useEffect(() => {
     if (isAuthenticated) window.location.assign('/chats');
   }, [isAuthenticated]);
 
-  const submitForm = (event: any) => {
+  const submitForm = async (event: any) => {
     event.preventDefault();
-    dispatch(login(username, password));
+    try {
+      if (username.length < 3 || password.length < 3) {
+        const message =
+          'username and password should be 3 character min length';
+        return toast.error(message, { position: toast.POSITION.TOP_CENTER });
+      }
+      const send = await postRequest('/signup', { username, password });
+      const { message } = send;
+      toast.success(message, { position: toast.POSITION.TOP_CENTER });
+      window.location.assign('/login');
+    } catch (error) {
+      const message = (await error.response)
+        ? error.response.data.message
+        : 'Something wrong';
+      toast.error(message, { position: toast.POSITION.TOP_CENTER });
+    }
   };
 
   return (
@@ -38,6 +53,7 @@ const LoginPage = () => {
             type="text"
             name="username"
             placeholder="Username"
+            autoComplete="off"
             className="login-page-container__input-field"
             onChange={(e) => setUsername(e.target.value)}
           />
@@ -47,6 +63,7 @@ const LoginPage = () => {
             type="password"
             name="password"
             placeholder="Password"
+            autoComplete="off"
             className="login-page-container__input-field"
             onChange={(e) => setPassword(e.target.value)}
           />
@@ -54,12 +71,12 @@ const LoginPage = () => {
           <div className="login-page-container__button-container">
             <p className="login-page-container__hiden">Hidden</p>
             <button type="submit" className="login-page-container__signin-btn">
-              Sign in
+              Sign up
             </button>
           </div>
-          <Link to="signup">
+          <Link to="login">
             <button className="login-page-container__no-account-btn">
-              Don't have an account
+              Already have an account,
             </button>
           </Link>
         </form>
@@ -68,4 +85,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default SignupPage;
