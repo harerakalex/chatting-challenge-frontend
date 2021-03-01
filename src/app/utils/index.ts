@@ -1,3 +1,4 @@
 import Axios from './axios';
+import checkToken from './checkToken';
 
-export { Axios };
+export { Axios, checkToken };

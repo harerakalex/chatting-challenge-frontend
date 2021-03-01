@@ -11,7 +11,8 @@ const http = axios.create({
 });
 
 http.interceptors.request.use(async (request) => {
-  request.headers['Authorization'] = 'JWT';
+  const { token } = localStorage;
+  request.headers['Authorization'] = token;
   return request;
 });
 

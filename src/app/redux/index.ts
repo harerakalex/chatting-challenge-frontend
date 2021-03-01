@@ -1,19 +1,19 @@
 import { createStore, applyMiddleware } from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension';
-import createSagaMiddleware from 'redux-saga';
+import thunk from 'redux-thunk';
 
 import rootReducer from './reducers';
-import rootSaga from './saga';
+import { checkToken } from '../utils';
 
-const sagaMiddleware = createSagaMiddleware();
-const composeEnhancers = composeWithDevTools({});
+const initialState = {};
+const middleware = [checkToken, thunk];
 
 export type AppState = ReturnType<typeof rootReducer>;
 
 const store = createStore(
   rootReducer,
-  composeEnhancers(applyMiddleware(sagaMiddleware)),
+  initialState,
+  composeWithDevTools(applyMiddleware(...middleware)),
 );
-sagaMiddleware.run(rootSaga);
 
 export default store;
